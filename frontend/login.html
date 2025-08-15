@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Telefonla Giriş</title>
+</head>
+<body>
+  <h1>Telefonla Giriş</h1>
+
+  <label>Telefon (örn: +905551112233)</label>
+  <input id="phone" placeholder="+905551112233" />
+
+  <button id="send">Kodu Gönder</button>
+
+  <div style="margin-top:12px">
+    <input id="code" placeholder="123456" maxlength="6" />
+    <button id="verify">Doğrula</button>
+  </div>
+
+  <pre id="out" style="white-space:pre-wrap"></pre>
+
+  <script src="/login.js"></script>
+</body>
+</html>

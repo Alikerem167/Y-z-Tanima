@@ -1,0 +1,16 @@
+# Gizli bilgiler
+.env
+
+# Bağımlılıklar (her yerde npm install ile geri kurulabilir)
+node_modules/
+frontend/node_modules/
+
+# Veritabanı (kullanıcı verilerini yanlışlıkla GitHub’a koymamak için)
+veritabani.db
+
+# Lock dosyaları (opsiyonel ama çoğu kişi ignore eder)
+package-lock.json
+frontend/package-lock.json
+
+# Log dosyaları
+*.log

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kayıt Ol</title>
+</head>
+<body>
+  <h1>Arkadaş Kayıt</h1>
+  <form id="registerForm">
+    <label>Kullanıcı Adı:</label><br>
+    <input type="text" id="username" required><br><br>
+    <label>Şifre:</label><br>
+    <input type="password" id="password" required><br><br>
+    <button type="submit">Kayıt Ol</button>
+  </form>
+
+  <p id="mesaj"></p>
+
+  <script>
+    const form = document.getElementById('registerForm');
+const mesaj = document.getElementById('mesaj');
+
+form.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  const res = await fetch('http://localhost:3000/kayit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+
+  if (res.ok) {
+    mesaj.innerText = "Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz...";
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 1500); // 1.5 saniye sonra login.html'e yönlendir
+  } else {
+    const text = await res.text();
+    mesaj.innerText = text;
+  }
+});
+
+  </script>
+</body>
+</html>
