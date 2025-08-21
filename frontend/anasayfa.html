@@ -1,14 +1,48 @@
 <!DOCTYPE html>
 <html lang="tr">
-<head><meta charset="UTF-8"><title>Analiz</title></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fotoğraf Analizi</title>
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
 <body>
-  <h1>Fotoğraf Analizi</h1>
-  <input type="file" id="file" accept="image/*" />
-  <button id="send">Analiz Et</button>
-  <button id="logout">Çıkış</button>
-  <pre id="out"></pre>
+  <main class="container">
+    <section class="card">
+      <h1>Fotoğraf Analizi</h1>
+
+      <div class="stack">
+        <label>Görsel</label>
+        <label class="file">
+          <input type="file" id="file" accept="image/*">
+          <span class="hint">Görsel seç veya sürükleyip bırak</span>
+        </label>
+
+        <div class="actions">
+          <button class="btn" id="send">Analiz Et</button>
+          <button class="btn danger" id="logout">Çıkış</button>
+        </div>
+        
+        <div id="sliderWrap" class="slider-wrap hidden">
+  <div id="slider" class="slider"></div>
+
+  <div class="pager">
+    <button id="prev" class="btn secondary" type="button">‹</button>
+    <div id="dots" class="dots"></div>
+    <button id="next" class="btn secondary" type="button">›</button>
+  </div>
+</div>
 
 
-<script src="/anasayfa.js"></script>
+        <pre id="out"></pre>
+        <p class="muted">Günlük 3 analiz hakkın var. Yüksek çözünürlüklü görseller daha net sonuç verir.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/anasayfa.js"></script>
+  <script src="/anasayfa2.js"></script>
+  <link rel="stylesheet" href="/assets/style.css">
+
 </body>
 </html>

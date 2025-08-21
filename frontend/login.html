@@ -2,23 +2,38 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Telefonla Giriş</title>
+  <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
-  <h1>Telefonla Giriş</h1>
+  <main class="container">
+    <section class="card">
+      <h1>Telefonla Giriş</h1>
 
-  <label>Telefon (örn: +905551112233)</label>
-  <input id="phone" placeholder="+905551112233" />
+      <div class="stack">
+        <div>
+          <label>Telefon (örn: +905551112233)</label>
+          <input class="input" id="phone" placeholder="+905551112233" inputmode="tel" autocomplete="tel">
+        </div>
 
-  <button id="send">Kodu Gönder</button>
+        <div class="actions">
+          <button class="btn" id="send">Kodu Gönder</button>
+        </div>
 
-  <div style="margin-top:12px">
-    <input id="code" placeholder="123456" maxlength="6" />
-    <button id="verify">Doğrula</button>
-  </div>
+        <div class="row" style="margin-top:6px; gap:8px;">
+          <input class="input" id="code" placeholder="123456" maxlength="6" style="flex:1; max-width:220px;" inputmode="numeric">
+          <button class="btn success" id="verify">Doğrula</button>
+        </div>
 
-  <pre id="out" style="white-space:pre-wrap"></pre>
+        <pre id="out"></pre>
+        <p class="muted">Kod 5 dakika içinde geçerlidir. Çok deneme yaparsan geçici kilitlenebilirsin.</p>
+      </div>
+    </section>
+  </main>
 
   <script src="/login.js"></script>
+  <script src="/login2.js"></script>
+  
 </body>
 </html>

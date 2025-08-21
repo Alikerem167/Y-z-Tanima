@@ -226,10 +226,7 @@ app.post("/verify-otp", (req, res) => {
 });
 
 
-
-
-/* -------------------- Görsel Analiz -------------------- */
-/* -------------------- OpenAI REST çağrısı fonksiyonu -------------------- */
+/* -------------------- Görsel Analiz: JSON Dönen -------------------- */
 async function callResponsesDirect(dataUrl) {
   const body = {
     model: "gpt-4o-mini",
@@ -239,9 +236,8 @@ async function callResponsesDirect(dataUrl) {
         content: [
           {
             type: "input_text",
-            text:
-`Rolün:İlm İ Sima Yöntemi Kullanarak Kesinlik İddiası Olmadan Kişinin Yüzünden Karakter Özellkleri Çıkarma Detaylı Ve Uzun Olmalı Ayrıca Yüz Özelliklerine Bakarak Karakteri Hakkında Yorum Yapıcaksın (örn: İşte Çenesi Bu Şekildeyse Karakteri Böyledir Gibi) ayrıca karakteri hakkında falan aşırı detaylı yap işte çenesi böyleyse kararlıdır gözü şöyleyse böyledir gibi ve hepsinde ilmi sima kullan.
-YASAK: kimlik, yaş, cinsiyet, etnik köken, sağlık,  ahlaki hüküm, siyaset.
+            text: `Rolün: İlm-i Sima yöntemiyle kesinlik iddiası olmadan karakter çıkarımı yap.
+YASAK: kimlik, yaş, cinsiyet, etnik köken, sağlık, ahlaki hüküm, siyaset.
 Tarz: nazik, hafif mizahi, kesinlik iddiası yok.
 Çıktı JSON şeması: {"genelIzlenim":"","duygu":"","stiller":[],"uyari":""}`
           },
@@ -250,24 +246,23 @@ Tarz: nazik, hafif mizahi, kesinlik iddiası yok.
       }
     ],
     text: {
-  format: {
-    type: "json_schema",
-    name: "YuzAnaliz",
-    schema: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        genelIzlenim: { type: "string" },
-        duygu: { type: "string" },
-        stiller: { type: "array", items: { type: "string" } },
-        uyari: { type: "string" }
-      },
-      required: ["genelIzlenim", "duygu", "stiller", "uyari"]
+      format: {
+        type: "json_schema",
+        name: "YuzAnaliz",
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            genelIzlenim: { type: "string" },
+            duygu: { type: "string" },
+            stiller: { type: "array", items: { type: "string" } },
+            uyari: { type: "string" }
+          },
+          required: ["genelIzlenim", "duygu", "stiller", "uyari"]
+        }
+      }
     }
-  }
-}
-};
-
+  };
 
   const r = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -286,10 +281,10 @@ Tarz: nazik, hafif mizahi, kesinlik iddiası yok.
 
   const resp = await r.json();
 
-  // güvenli parse
   const content = resp?.output?.[0]?.content ?? [];
   const part = content.find(c => c && (c.type === "output_text" || c.type === "summary_text"));
   const raw = part?.text ?? resp?.output_text ?? (content[0]?.text ?? "");
+
   let json;
   try { json = raw ? JSON.parse(raw) : null; } catch { json = null; }
   return json ?? { genelIzlenim: "", duygu: "", stiller: [], uyari: "json_parse_error" };
@@ -297,28 +292,145 @@ Tarz: nazik, hafif mizahi, kesinlik iddiası yok.
 
 
 /* -------------------- Görsel Analiz -------------------- */
- app.post("/analyze", verifyToken, upload.single("photo"), async (req, res) => {
-   try {
-     if (!process.env.OPENAI_API_KEY) {
-       return res.status(500).json({ error: "OpenAI yapılandırılmamış (OPENAI_API_KEY gerekli)." });
-     }
-     if (!req.file) return res.status(400).json({ error: "Fotoğraf gerekli" });
+/* -------------------- OpenAI REST çağrısı fonksiyonu -------------------- */
+// JSON değil, detaylı ve bölüm bölüm yazı ister
+async function callResponsesProse(dataUrl) {
+  const prompt = `
+Amaç: Eğlence amaçlı, nazik ve kesinlik iddiası olmadan İlm-i Sima esintili bir karakter çıkarımı yap.
+Yazım Dili: Türkçe.
+Biçem: Sade, akıcı; bölüm başlıklarıyla (Markdown) düzenli. Gerektiğinde madde işaretleri kullan.
+Kapsam: 
+- **Genel İzlenim**: Fotoğrafın ışığı, kadrajı ve ifadenin ilk anda verdiği hava. 
+- **Yüz Hatlarından Karakter Yorumları**: 
+  - Alın → düşünce yapısı, zihinsel eğilimler
+  - Kaşlar → kararlılık, enerji
+  - Gözler → dış dünyayla ilişki, bakışın karaktere yansıması
+  - Elmacık Kemikleri → sosyal yönler
+  - Burun → hırs, özgüven veya sakinlik
+  - Dudaklar ve Ağız → iletişim tarzı
+  - Çene / Çene Çizgisi → irade, kararlılık, dayanıklılık
+  - Yüz Şekli → genel karakter profili
+- **Detaylı İlm-i Sima Esintili Yorumlar**: Bölümlerdeki detaylara dayalı olarak kişilik hakkında olasılık diliyle yorumlar ("genellikle", "izlenim olarak", "çoğu zaman" gibi).
+- **Stil Önerileri**: Fotoğraf açısından ışık, kadraj ve duruş önerileri.
+- **Sınırlar/Uyarı**: Bu yorumların bilimsel kesinliği yoktur; sadece eğlence amaçlıdır.
 
-     const count = dailyCount(req.user.id);
-     if (count >= 3) return res.status(429).json({ error: "Günlük hakkın doldu (3/24s)" });
+Kesin Yasaklar:
+- Kimlik tespiti, yaş, cinsiyet, etnik köken, sağlık, zekâ, ahlaki değer yargısı, siyasi görüş, engellilik, maddi durum, cinsel yönelim gibi hassas alanlara **girme**.
+- Hakaret, aşağılayıcı yargı veya doğrudan "iyi/kötü" etiketleri verme.
+- Her ifadeyi olasılık diliyle ve nazikçe kur.
 
-     const b64 = req.file.buffer.toString("base64");
-     const dataUrl = `data:${req.file.mimetype};base64,${b64}`;
+Çıktı Biçimi (Markdown):
 
-     const respJson = await callResponsesDirect(dataUrl);
+# Genel İzlenim
+...kısa akış...
 
-     addUpload(req.user.id);
-     return res.json(respJson);
-   } catch (e) {
-     console.error(e);
-     return res.status(500).json({ error: "Analiz hatası" });
-   }
- });
+# Yüz Hatlarından Karakter Yorumları
+## Alın
+...
+## Kaşlar
+...
+## Gözler
+...
+## Elmacık Kemikleri
+...
+## Burun
+...
+## Dudaklar ve Ağız
+...
+## Çene ve Çene Çizgisi
+...
+## Yüz Şekli
+...
+
+# İlm-i Sima Esintili Yorumlar (Eğlence Amaçlı)
+- ...
+
+# Stil / Kadraj Önerileri
+- ...
+
+# Uyarı ve Sınırlamalar
+- Bu değerlendirme eğlence amaçlıdır; bilimsel kesinlik iddiası yoktur.
+- Yukarıdaki yasaklı alanlara özellikle girilmemiştir.
+
+  `.trim();
+
+  const body = {
+    model: "gpt-4o-mini",
+    input: [
+      {
+        role: "user",
+        content: [
+          { type: "input_text", text: prompt },
+          { type: "input_image", image_url: dataUrl }
+        ]
+      }
+    ]
+    // DİKKAT: Burada artık text.format=json_schema göndermiyoruz.
+    // Serbest, düz metin üretmesini istiyoruz.
+  };
+
+  const r = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!r.ok) {
+    const errText = await r.text();
+    console.error("OpenAI error", r.status, errText);
+    throw new Error(`OpenAI ${r.status}`);
+  }
+
+  const resp = await r.json();
+
+  // Çoğu zaman buradan düz yazı alınır:
+  const content = resp?.output?.[0]?.content ?? [];
+  const part = content.find(c => c && (c.type === "output_text" || c.type === "summary_text"));
+  const prose = part?.text ?? resp?.output_text ?? (content[0]?.text ?? "");
+
+  return prose || "Çıktı boş görünüyor.";
+}
+
+
+/* -------------------- Görsel Analiz -------------------- */
+app.post("/analyze", verifyToken, upload.single("photo"), async (req, res) => {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({ error: "OpenAI yapılandırılmamış (OPENAI_API_KEY gerekli)." });
+    }
+    if (!req.file) return res.status(400).json({ error: "Fotoğraf gerekli" });
+
+    const count = dailyCount(req.user.id);
+    if (count >= 3) return res.status(429).json({ error: "Günlük hakkın doldu (3/24s)" });
+
+    const b64 = req.file.buffer.toString("base64");
+    const dataUrl = `data:${req.file.mimetype};base64,${b64}`;
+
+    // 🔀 mod seçimi: ?mode=prose / body.mode / header
+    const mode = (req.query.mode || req.body?.mode || req.headers["x-analyze-mode"] || "json").toString();
+
+    let result;
+    if (mode === "prose") {
+      const prose = await callResponsesProse(dataUrl);
+      addUpload(req.user.id);
+      // İstersen direkt markdown döndür:
+      // return res.type("text/markdown").send(prose);
+      return res.json({ text: prose, format: "markdown" });
+    } else {
+      // Eski davranış (JSON şemalı)
+      const respJson = await callResponsesDirect(dataUrl);
+      addUpload(req.user.id);
+      return res.json(respJson);
+    }
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Analiz hatası" });
+  }
+});
+
 
 
 
