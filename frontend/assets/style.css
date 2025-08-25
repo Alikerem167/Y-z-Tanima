@@ -206,3 +206,80 @@ pre#out{
 .dot.active{ background: white; }
 /* debug çıktısını kapat */
 pre#out{ display:none !important; }
+
+
+.thumb {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ---- Navbar ---- */
+.navbar{
+  background:#6366F1;color:#fff;padding:12px 0;position:sticky;top:0;z-index:1000
+}
+.nav-container{
+  width:min(1100px,92%);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px
+}
+.logo{font-size:1.25rem;font-weight:700;color:#fff;text-decoration:none}
+
+/* Hamburger */
+.nav-toggle{
+  font-size:1.8rem;background:none;border:0;color:#fff;cursor:pointer;line-height:1;padding:6px 10px
+}
+
+/* Panel + overlay (başta kapalı) */
+.nav-links{
+  position:fixed;inset:auto 0 0 auto; /* sağdan alttan zıplamasın */
+  top:56px;right:0;
+  display:flex;flex-direction:column;gap:6px;
+  width:85vw;max-width:320px;height:auto;max-height:calc(100vh - 64px);
+  background:#6366F1;padding:14px;border-radius:12px 0 0 12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+  transform:translateX(110%);opacity:.0;pointer-events:none;
+  transition:transform .25s ease,opacity .25s ease;
+  list-style:none;overflow:auto
+}
+.nav-links a{
+  color:#fff;text-decoration:none;font-weight:600;
+  padding:10px 8px;border-radius:8px;display:block
+}
+.nav-links a:hover{background:rgba(255,255,255,.12)}
+
+/* Overlay */
+.nav-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.35);
+  opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:999
+}
+
+/* Açık durum */
+.nav-links.show{transform:translateX(0);opacity:1;pointer-events:auto;z-index:1001}
+.nav-overlay.show{opacity:1;pointer-events:auto}
+
+/* Küçük ekran optimizasyonları */
+@media (max-width: 480px){
+  .logo{font-size:1.1rem}
+  .nav-toggle{font-size:1.6rem}
+  .nav-links{width:100vw;max-width:none;border-radius:0;top:52px}
+  .nav-links a{padding:12px 14px;font-weight:600}
+}
+
+/* Büyük ekranlarda biraz ferahlık */
+@media (min-width: 1024px){
+  .nav-container{gap:20px}
+  .logo{font-size:1.35rem}
+  .nav-links{max-width:380px;padding:16px}
+}
+
+/* Erişilebilirlik: animasyon kapatma tercihi */
+@media (prefers-reduced-motion: reduce){
+  .nav-links,.nav-overlay{transition:none}
+}
+
+

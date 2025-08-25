@@ -4,6 +4,56 @@ const fileInput = document.getElementById('file');
 const sendBtn = document.getElementById('send');
 const logoutBtn = document.getElementById('logout');
 
+
+// Önizleme için
+const preview = document.getElementById('preview');
+const placeholder = document.getElementById('placeholder');
+
+function clearPreview() {
+  preview.classList.add('hidden');
+  preview.removeAttribute('src');  // kırık ikon olmasın
+  if (placeholder) placeholder.classList.remove('hidden');
+}
+
+fileInput.addEventListener('change', () => {
+  const f = fileInput.files[0];
+  if (!f) { 
+    // Kullanıcı dosyayı temizlediyse gerçekten temizle
+    clearPreview(); 
+    return; 
+  }
+
+  // Sık kullanılan türler (HEIC/HEIF yok)
+  const okType = /^image\/(png|jpe?g|webp|gif)$/i.test(f.type);
+  if (!okType) {
+    alert("Bu görüntü türü desteklenmiyor. Lütfen JPG/PNG/WebP/GIF seç.");
+    // ÖNEMLİ: mevcut önizlemeyi KORU
+    fileInput.value = "";   // sadece yeni seçimi iptal et
+    return;
+  }
+
+  const url = URL.createObjectURL(f);
+
+  // Başarılı yükleme → URL'i serbest bırak
+  preview.onload = () => { URL.revokeObjectURL(url); };
+
+  // Hata olursa mevcut önizlemeyi kaldırmak istiyorsan clearPreview() yap,
+  // ama istersen burada da koruyabilirsin (tercih meselesi)
+  preview.onerror = () => {
+    URL.revokeObjectURL(url);
+    clearPreview();
+    alert("Önizleme başarısız oldu. Dosya bozuk olabilir veya tür desteklenmiyor.");
+  };
+
+  preview.src = url;
+  preview.classList.remove('hidden');
+  if (placeholder) placeholder.classList.add('hidden');
+});
+
+
+
+
+
 // Token kontrolü
 const token = localStorage.getItem('token');
 if (!token) location.href = 'otp.html';

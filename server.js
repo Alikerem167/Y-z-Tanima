@@ -28,7 +28,19 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 /* -------------------- Orta katmanlar -------------------- */
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "blob:", "data:"],
+      connectSrc: ["'self'", "https://api.openai.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"]
+    }
+  }
+}));
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 dk

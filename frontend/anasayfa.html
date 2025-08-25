@@ -7,16 +7,41 @@
   <link rel="stylesheet" href="/assets/app.css">
 </head>
 <body>
+  <nav class="navbar">
+  <div class="nav-container">
+    <a href="anasayfa.html" class="logo">FotoAnaliz</a>
+
+    <button class="nav-toggle" id="navToggle">☰</button>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#yuz-analiz">Yüz Analizi</a></li>
+      <li><a href="#el-fali">El Falı</a></li>
+      <li><a href="#burc-yorumu">Burç Yorumu</a></li>
+      <li><a href="#yukselen-burc">Yükselen Burç Yorumu</a></li>
+      <li><a href="#konusma-tarz">Konuşma Tarzı Yorumu</a></li>
+    </ul>
+  </div>
+</nav>
+
+
   <main class="container">
     <section class="card">
       <h1>Fotoğraf Analizi</h1>
 
       <div class="stack">
         <label>Görsel</label>
-        <label class="file">
-          <input type="file" id="file" accept="image/*">
-          <span class="hint">Görsel seç veya sürükleyip bırak</span>
-        </label>
+       <label class="file">
+  <!-- TEK input -->
+  <input type="file" id="file" accept="image/png,image/jpeg,image/webp,image/gif">
+
+
+  <!-- Önizleme alanı -->
+  <div class="drop" style="display:flex;align-items:center;gap:12px;">
+    <img id="preview" class="thumb hidden" alt="">
+    <span id="placeholder">Görsel seç veya sürükleyip bırak</span>
+  </div>
+</label>
+
 
         <div class="actions">
           <button class="btn" id="send">Analiz Et</button>
